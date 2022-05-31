@@ -1,0 +1,27 @@
+APP_NAME := "jaist-fib-api"
+GIT_HASH := `git rev-parse HEAD`
+DOCKER_REPO := "nnao45"
+
+run:
+  cargo run
+
+build:
+  cargo build --release
+
+docker-run:
+  docker run -it --rm -p 8081:8081 --env-file=./.env {{ DOCKER_REPO }}/{{ APP_NAME }}:{{ GIT_HASH }}
+
+docker-login:
+    docker login
+
+docker-app-build:
+	docker rmi -f {{ DOCKER_REPO }}/{{ APP_NAME }}:latest
+	docker build -t {{ DOCKER_REPO }}/{{ APP_NAME }}:latest .
+	docker tag {{ DOCKER_REPO }}/{{ APP_NAME }}:latest {{ DOCKER_REPO }}/{{ APP_NAME }}:{{ GIT_HASH }}
+
+docker-app-push: docker-login
+	docker push {{ DOCKER_REPO }}/{{ APP_NAME }}:latest
+	docker push {{ DOCKER_REPO }}/{{ APP_NAME }}:{{ GIT_HASH }}
+
+docker-app-release: docker-app-build docker-app-push
+

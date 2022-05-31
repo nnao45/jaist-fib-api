@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BspLocalSettings">
+    <option name="projectSyncType">
+      <map>
+        <entry key="$USER_HOME$/ghq/github.com/nnao45/airt-bidder" value="PREVIEW" />
+        <entry key="$USER_HOME$/ghq/github.com/nnao45/airt-olivia" value="PREVIEW" />
+        <entry key="$USER_HOME$/ghq/github.com/nnao45/ichica-mapr" value="PREVIEW" />
+      </map>
+    </option>
+  </component>
+  <component name="ScalaSbtSettings">
+    <option name="customVMPath" />
+  </component>
+</project>
