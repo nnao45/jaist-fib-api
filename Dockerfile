@@ -2,7 +2,7 @@
 
 # Setup Building Container
 ## Install Dependency Module
-FROM rust:1.59.0-slim as builder
+FROM rust:1.61.0-slim as builder
 
 VOLUME ["/output", "/usr/local/cargo"]
 
@@ -18,17 +18,18 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
         libssl-dev \
         git
-RUN rustup default nightly-2021-12-16
+RUN rustup default nightly-2022-03-23
 
 ## Build Cache Dependency Library
 RUN mkdir /app
 WORKDIR /app
 COPY . .
-RUN --mount=type=cache,target=/root/.cargo \
-    --mount=type=cache,target=/app/target \
-    --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/usr/local/cargo/registry \
-    cargo build --release -Z unstable-options --out-dir /output
+# RUN --mount=type=cache,target=/root/.cargo \
+#    --mount=type=cache,target=/app/target \
+#    --mount=type=cache,target=/usr/local/cargo/git \
+#    --mount=type=cache,target=/usr/local/cargo/registry \
+#    cargo build --release -Z unstable-options --out-dir /output
+RUN cargo build --release
 
 FROM debian:11.1-slim as worker
 ENV DEBIAN_FRONTEND=noninteractive
@@ -42,10 +43,10 @@ RUN set -eux; \
 RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     echo "Asia/Tokyo" > /etc/timezone
 
-## Copy App
-COPY --from=builder /output/jaist-fib-api .
+### Copy App
+COPY --from=builder /app/target/release/jaist-fib-api .
 
-## add user
+### add user
 RUN groupadd --non-unique --gid 23456 jaist
 RUN useradd --non-unique --system --uid 12345 --gid 23456 naoya_yokoyama
 USER naoya_yokoyama

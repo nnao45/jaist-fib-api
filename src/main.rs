@@ -1,9 +1,13 @@
-#[macro_use] extern crate rocket;
-use rocket::Config;
-use rocket::config::LogLevel;
+use actix_web::{get, web, App, HttpServer, Responder};
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+struct FibParams {
+    n: usize,
+}
 
 #[get("/hc")]
-fn hc() -> &'static str {
+async fn hc() -> impl Responder {
     "OK"
 }
 
@@ -15,20 +19,19 @@ fn fib_exec(n: usize) -> usize {
     }
 }
 
-#[get("/fib?<n>")]
-fn fib(n: usize) -> String {
-    fib_exec(n).to_string()
+#[get("/fib")]
+async fn  fib(param: web::Query<FibParams>) -> impl Responder {
+    fib_exec(param.n).to_string()
 }
 
-#[launch]
-fn rocket() -> _ {
-    let mut config = Config::default();
-    config.port = 8081;
-    config.log_level = LogLevel::Critical;
-    rocket::build()
-        .mount("/", routes![hc])
-        .mount("/", routes![fib])
-        .configure(config)
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| App::new()
+        .service(hc)
+        .service(fib))
+        .bind("0.0.0.0:8081")?
+        .run()
+        .await
 }
 
 #[cfg(test)]
